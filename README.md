@@ -1,12 +1,12 @@
-# msgr
+# msgr | AMQP Client
 
 [![GoDoc](http://img.shields.io/badge/godoc-reference-blue.svg)](http://godoc.org/github.com/piquette/msgr) [![Build Status](https://travis-ci.org/piquette/msgr.svg?branch=master)](https://travis-ci.org/piquette/msgr) [![Coverage Status](https://coveralls.io/repos/github/piquette/msgr/badge.svg?branch=master)](https://coveralls.io/github/piquette/msgr?branch=master)
 
 ## Summary
 
-This go module is a tiny wrapper around [streadway/amqp](https://github.com/streadway/amqp), the standard golang client for rabbitmq (the message brokering system) connectivity.
+This go module is a tiny wrapper around the [streadway/amqp](https://github.com/streadway/amqp), the standard low level golang client for [rabbitmq](https://www.rabbitmq.com/), the open source message broker. 
 
-Msgr abstracts away a few of the complexities of rabbitmq and exposes a slightly friendlier interface, intended for simple applications.
+`msgr` abstracts away a few of the complexities of rabbitmq and exposes a slightly friendlier interface, intended for simple applications.
 
 ## Documentation
 
@@ -22,6 +22,55 @@ go get github.com/piquette/msgr
 
 ## Usage example
 
+### Producer
+
+```go
+// Instantiate and connect to the server.
+conf := &msgr.Config{
+    URI:     "amqp://localhost:5672",
+    Channel: "queue_name",
+}
+producer = msgr.ConnectP(conf)
+defer producer.Close()
+
+// Send a message.
+Enqueue:
+{
+    success := producer.Post([]byte("hi")])
+    if !success {
+        // Retry for all eternity.
+        log.Println("could not enqueue msg")
+        time.Sleep(time.Second * 3)
+        goto Enqueue
+    }
+}
+```
+
+### Consumer
+
+```go
+// Instantiate and connect to the server.
+conf := &msgr.Config{
+    URI:     "amqp://localhost:5672",
+    Channel: "queue_name",
+}
+consumer = msgr.ConnectC(conf)
+defer consumer.Close()
+
+// Receive messages.
+open, messages := s.Consumer.Accept()
+if !open {
+    return
+}
+// Range over the messages chan.
+for recv := range messages {
+    // Got one.
+    fmt.Println(string(recv.Body)) // prints 'hi'.
+
+    // Don't forget to acknowledge.
+    recv.Ack(false)
+}
+```
 
 
 ## Contributing

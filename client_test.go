@@ -50,5 +50,5 @@ func TestQueueSuccess(t *testing.T) {
 	producer.Close()
 
 	<-done
-	tests.Delete(tests.AMQPIntegrationQueue)
+	// tests.Delete(tests.AMQPIntegrationQueue)
 }
