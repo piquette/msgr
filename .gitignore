@@ -1,0 +1,6 @@
+*.exe
+vendor
+.DS_Store
+.env
+*.test
+*.coverprofile
